@@ -9,6 +9,8 @@ import RNPickerSelect from 'react-native-picker-select';
 import { connect } from "react-redux";
 import { geolocated } from "react-geolocated";
 import MakePaypalPayment from "../../../paypal/makePayment.js";
+import { sbCreateOpenChannel } from "../../../../actions/openChannel.js";
+import { store } from "../../../../store/store.js";
 // import Geocode from "react-geocode";
  
 // // set Google Maps Geocoding API for purposes of quota management. Its optional but recommended.
@@ -61,7 +63,8 @@ constructor () {
 	// 	);
 	// }
 	requestPayment = () => {
-		axios.post("https://txjqlz5f4f.execute-api.us-east-1.amazonaws.com/latest/stripe/signup/business", { 
+
+		axios.post("http://192.168.1.253:5000/stripe/signup/business", { 
 			email: this.props.email,
 			businessName: this.state.businessName,
 			category: this.state.category,
@@ -87,10 +90,12 @@ constructor () {
 				zipCode: "",
 				city: ""
 			}, () => {
+				// this.props.sbCreateOpenChannel(store.getState().userData.data.firstName + " " + store.getState().userData.data.lastName, store.getState().userData.data.userId);
 				alert("You've successfully posted this job!")
 			})
 		  }).catch((err) => {
 		  	console.log(err);
+		  	alert("Systemn Error, Please Try Again.")
 		  })
 	  // this.setState({ 
 	  // 	isPaymentPending: true 
@@ -414,4 +419,4 @@ const mapStateToProps = (state) => {
 		email: state.userData.data.email
 	}
 }
-export default connect(mapStateToProps, {  })(SignupBusinessAccount);
+export default connect(mapStateToProps, { sbCreateOpenChannel })(SignupBusinessAccount);

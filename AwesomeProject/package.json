@@ -6,6 +6,7 @@
     "start": "react-native run-ios --simulator='iPhone 11'",
     "test": "jest"
   },
+  "proxy": "http://192.168.1.253:5000",
   "dependencies": {
     "@apollo/react-hooks": "^3.1.2",
     "@pusher/chatkit-client-react": "^0.1.2",
@@ -76,7 +77,6 @@
     "rn-bottom-drawer": "^1.4.3",
     "rn-sliding-up-panel": "^2.3.3",
     "sendbird": "^3.0.111",
-    "socket.io-client": "^2.3.0",
     "stream-chat": "^1.1.7",
     "underscore": "^1.9.1"
   },

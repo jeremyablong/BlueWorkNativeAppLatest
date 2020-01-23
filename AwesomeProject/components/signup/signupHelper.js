@@ -53,7 +53,7 @@ class SignUpView extends Component {
     const generatedUUID = uuid().toString();
 
     if (this.state.code === this.state.expectedCode.toString()) {
-      axios.post("http://172.20.10.6:5000/register", {
+      axios.post("http://172.31.99.114:5000/register", {
         firstName: this.state.firstName,
         lastName: this.state.lastName,
         email: this.state.email.toLowerCase(),
@@ -62,6 +62,7 @@ class SignUpView extends Component {
         userId: generatedUUID
       }).then((res) => {
         console.log("This is the response on the client side:", res.data);
+        alert("Successfully Registered!")
       }).catch((err) => {
         alert(err);
         console.log("This is the error on the client side:" , err);
@@ -74,9 +75,12 @@ class SignUpView extends Component {
           email: "",
           password: "",
           accountType: "",
+          phoneNumber: "",
           page: 1
         }, () => {
+
           const { userId, nickname } = this.state;
+
           sb.connect(userId, (user, error) => {
             if (error) {
                 console.log("There was an error");
@@ -118,7 +122,7 @@ class SignUpView extends Component {
       page: 2
     });
 
-    axios.post("http://172.20.10.6:5000/twillio", {
+    axios.post("http://172.31.99.114:5000/twillio", {
       phoneNumber: this.state.phoneNumber
     }).then((res) => {
       console.log(res.data);

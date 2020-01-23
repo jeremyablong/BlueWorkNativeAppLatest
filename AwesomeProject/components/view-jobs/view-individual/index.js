@@ -12,7 +12,14 @@ import { Textarea } from "native-base";
 import { saveEmail } from "../../../actions/index.js";
 import uuid from "react-uuid";
 import { store } from "../../../store/store.js"; 
-import { sbCreateOpenChannel } from "../../../actions/openChannel.js";
+import { 
+	sbCreateOpenChannel, 
+	sbCreateOpenChannelListQuery, 
+	sbOpenChannelEnter, 
+	sbGetOpenChannel,
+	getOpenChannelList
+} from "../../../actions/openChannel.js";
+import { onSendButtonPress } from "../../../actions/chat.js";
 // import SendBird from 'sendbird';
 // set Google Maps Geocoding API for purposes of quota management. Its optional but recommended.
 Geocode.setApiKey("AIzaSyDSTHo-QfCcFzb1Tn-lA0uL3Q-rOGdhkcQ");
@@ -62,7 +69,19 @@ constructor () {
 }
 	componentDidMount () {
 		const { navigation } = this.props;
-		const propsData = navigation.getParam("data", "NO-ID")
+		const propsData = navigation.getParam("data", "NO-ID");
+
+		const openChannelListQuery = sbCreateOpenChannelListQuery();
+	      this.setState({ 
+	      	openChannelListQuery,
+	      }, () => {
+	      	console.log("THIS.STATE.openChannelListQuery", this.state.openChannelListQuery);
+			this.props.getOpenChannelList({
+				openChannelListQuery: this.state.openChannelListQuery, 
+				userId: store.getState().userData.data.userId
+			});
+	    });
+
 		this.setState({
 			params: propsData
 		}, () =>  {
@@ -154,90 +173,46 @@ constructor () {
     	});
     };
     renderSubmit = () => {
-		// THIS IS THE WORKING INITAL POST TO THE DATABASE. IT SENDS TO BOTH USERS SUCCESSFULLY
-    	const { navigation } = this.props;
 
+
+		const { navigation } = this.props;
 		const propsData = navigation.getParam("data", "NO-ID");
 
-	
-		const date = new Date();
-		let minute = date.getMinutes();
-		let hour = date.getHours();
-		let day = date.getDate();
-		let month = date.getMonth();
-		let year = date.getFullYear();
+		console.log("propsDataaaaaaaaaaaaa:", propsData);
+
+		this.props.sbCreateOpenChannel(store.getState().userData.data.firstName + " " + store.getState().userData.data.lastName, store.getState().userData.data.userId, propsData, this.state.message);
+
+		/// insert data here to display passed down data - take resolved/created item and bring it to the client side + use it in onSendButtonPress ////////
 		
-		let minutesCalc = (minute.length === 1) ? "0" + minute : minute ;
 
-		let hours = date.getHours() % 12 || 12; 
+		// this.props.onSendButtonPress({
+  //       	channelUrl: propsData.url, 
+  //       	isOpenChannel: propsData.channelType, 
+  //       	textMessage: this.state.message,
+  //       	userId: store.getState().userData.data.userId
+  //       });
 
-		let ampm = (hours >= 12) ? "PM" : "AM";
+		//////////////////////////////////////////////////////////
 
-		const finalTime = month + "/" + day + "/" + year + " " + hour + ":" + minutesCalc + " " +  ampm;
+		axios.post("http://172.31.99.114:5000/gather/channels", {
+			email: this.props.email
+		}).then((res) => {
+			console.log("/gather/channels res.data", res.data);
+		}).catch((err) => {
+			console.log(err);
+		});
 
+		setTimeout(() => {
+			this.props.onSendButtonPress({
+	        	channelUrl: store.getState().relayChannel.channel.url, 
+	        	isOpenChannel: store.getState().relayChannel.channel.channelType, 
+	        	textMessage: this.state.message,
+	        	userId: store.getState().userData.data.userId
+	        });
+		}, 4000);
 		
-		this.props.sbCreateOpenChannel("first_channel", store.getState().userData.data.userId);
-
-
-		console.log("Submit Clicked.");
 		this.setState({
-			timestamp: finalTime
-		}, () => {
-				axios.post("https://txjqlz5f4f.execute-api.us-east-1.amazonaws.com/latest/gather/jobHistory/messages", {
-					email: this.props.email
-				}).then((res) => {
-					axios.post("https://txjqlz5f4f.execute-api.us-east-1.amazonaws.com/latest/send/initial/message", {
-						self: propsData.email,
-						email: this.props.email,
-						message: this.state.message, 
-						timestamp: this.state.timestamp,
-						firstName: this.props.firstName,
-						lastName: this.props.lastName,
-						jobHistory: res.data,
-						category: propsData.category,
-						hourly: propsData.hourly,
-						workerCount: propsData.workerCount,
-						phoneNumber: propsData.phoneNumber,
-						streetAddress: propsData.streetAddress,
-						city: propsData.city,
-						zipCode: propsData.zipCode
-					}).then((res) => {
-						this.setState({
-							data: res.data,
-							isModalVisible: false
-						})
-					}).catch((err) => {
-						console.log(err);
-					})
- 					
-					axios.post("https://txjqlz5f4f.execute-api.us-east-1.amazonaws.com/latest/send/backlash/message", {
-						self: this.props.email,
-						email: propsData.email,
-						message: this.state.message, 
-						timestamp: this.state.timestamp,
-						firstName: this.props.firstName,
-						lastName: this.props.lastName,
-						jobHistory: res.data,
-						category: propsData.category,
-						hourly: propsData.hourly,
-						workerCount: propsData.workerCount,
-						phoneNumber: propsData.phoneNumber,
-						streetAddress: propsData.streetAddress,
-						city: propsData.city,
-						zipCode: propsData.zipCode
-					}).then((res) => {
-						this.setState({
-							dataSetTwo: res.data,
-							isModalVisible: false
-						}, () => {
-							console.log(this.state.dataSetTwo);
-						})
-					}).catch((err) => {
-						console.log(err);
-					})
-				}).catch((err) => {
-					console.log(err.response);
-				});
+			isModalVisible: !this.state.isModalVisible
 		})
 	}
 	handleSubmit = () => {
@@ -259,6 +234,8 @@ constructor () {
 	renderMainContent = () => {
 		const { navigation } = this.props;
 		const propsData = navigation.getParam("data", "NO-ID");
+
+		console.log("PROPS-DATA FINALE :", propsData);
 		// this.props.saveEmail(propsData.email);
 		if (this.state.isModalVisible) {
 			return (
@@ -337,7 +314,7 @@ constructor () {
 					  	}}
 					    icon={<Icon name='message' color='#ffffff' />}
 					    buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 0}}
-					    title='MESSAGE THIS COMPANY TO TAKE JOB ' />
+					    title='MESSAGE THIS COMPANY' />
 					<View style={styles.viewBottomBtn}>
 					    <ElementsButton 
 					  	onPress={() => {
@@ -460,10 +437,22 @@ const mapStateToProps = (state) => {
 		firstName: state.userData.data.firstName,
 		lastName: state.userData.data.lastName,
 		email: state.userData.data.email,
-		otherUserEmail: state.jobHistory.data
+		otherUserEmail: state.jobHistory.data,
+		channels: state.channels.list,
+		relayUrl: state.relayChannel.channel.url,
+		channelType: state.relayChannel.channel.channelType
 	}
 }
-export default connect(mapStateToProps, { saveEmail, sbCreateOpenChannel })(ViewIndividualJob);
+export default connect(mapStateToProps, { 
+	saveEmail, 
+	sbCreateOpenChannel, 
+	onSendButtonPress, 
+	sbCreateOpenChannel, 
+	sbCreateOpenChannelListQuery, 
+	sbOpenChannelEnter, 
+	sbGetOpenChannel,
+	getOpenChannelList
+})(ViewIndividualJob);
 
 
 		

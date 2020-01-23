@@ -5,6 +5,7 @@ import { ListItem, Button as ElementsButton } from 'react-native-elements';
 import { store } from "../../store/store.js";
 import { connect } from "react-redux";
 import { signOut } from "../../actions/index.js";
+import { clearReduxState } from "../../actions/openChannel.js";
 
 class Navbar extends Component {
 constructor (props) {
@@ -28,7 +29,8 @@ constructor (props) {
 				<View style={{ marginTop: 20 }}>
 				    <ElementsButton 
 				    	onPress={() => {
-						this.props.signOut({})
+						this.props.signOut({});
+						this.props.clearReduxState();
 						alert("You have signed out.")
 				    }} 
 						title="SIGN OUT" 
@@ -197,4 +199,4 @@ const mapStateToProps = (state) => {
 	}
 }
 
-export default connect(mapStateToProps, { signOut })(Navbar);
+export default connect(mapStateToProps, { signOut, clearReduxState })(Navbar);

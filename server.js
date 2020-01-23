@@ -48,6 +48,8 @@ app.use("/gather/jobHistory/messages", require("./routes/messages/employmentHist
 app.use("/gather/jobHistory/jobHistory", require("./routes/messages/employmentHistory/getJobHistory.js"));
 app.use("/paypal/makePayment", require("./routes/paypal/createPayment.js"));
 app.use("/twillio", require("./routes/twillio/index.js"));
+app.use("/register/channelURL", require("./routes/sendbird/registerGroupChat.js"));
+app.use("/gather/channels", require("./routes/sendbird/gatherMatchingChannels.js"));
 // app.use("/initialize/stream/user", require("./routes/getStream/index.js"));
 
 // app.get("/home", (req, res) => {

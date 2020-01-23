@@ -250,7 +250,7 @@ constructor () {
 		return (
 			<View>
 				{this.handleUpdate()}
-					
+			
 		{/*		{this.renderContent()} 	*/}
 			</View>
 		);

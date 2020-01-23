@@ -2,7 +2,7 @@ import { INIT_LOGIN, LOGIN_SUCCESS, LOGIN_FAIL } from './types';
 import SendBird from 'sendbird';
 import AsyncStorage from '@react-native-community/async-storage';
 
-const APP_ID = "F5880415-F353-4D16-9D7F-09A199DE2813";
+const APP_ID = '2D4258E6-F4B9-4568-AF93-B1824A4CA582';
 
 export const sbConnect = (userId, nickname) => {
   console.log("sbConnect fired :", userId, nickname);
